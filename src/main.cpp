@@ -168,7 +168,7 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s, const vec
 int lane = 1;
 
 // reference velocity for vehicle to target
-double ref_vel = 49.5; // mph
+double ref_vel = 0.0; // mph
 
 int main() {
   uWS::Hub h;
@@ -248,7 +248,84 @@ int main() {
             int prev_size = previous_path_x.size();
 
 
-            // Project Q&A Code
+
+            // Project QA Code Sensor Fusion Behaviour
+
+            if (prev_size > 0) {
+
+              car_s = end_path_s;
+
+            }
+
+
+            bool too_close = false;
+
+            // Find ref_v to use
+            for (int i = 0; i < sensor_fusion.size(); i++) {
+
+              // car is in my lane
+              float d = sensor_fusion[i][6];
+              if (d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2)) {
+
+                double vx = sensor_fusion[i][3];
+                double vy = sensor_fusion[i][4];
+                double check_speed = sqrt(vx * vx + vy * vy);
+                double check_car_s = sensor_fusion[i][5];
+
+                // if using previous points car can project s value out
+                check_car_s += ((double)prev_size * 0.02 * check_speed);
+
+                // cout << check_car_s << endl;
+
+                // check s values greater than mine and s gap
+                if ((check_car_s > car_s) && ((check_car_s - car_s) < 30)) {
+
+                  cout << "Car Ahead Detected in Lane" << endl;
+
+                  // Do some logic here, lower reference velocity so dont crash into
+                  // the car infornt of use
+                  // Also flag to try to change lanes.
+                  // ref_vel = 29.5; // mph
+                  too_close = true;
+
+
+                }
+              }
+            }
+
+            if (too_close) {
+
+              ref_vel -= 0.224;
+
+            } else if (ref_vel < 49.5) {
+
+              ref_vel += 0.224;
+
+            }
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // Project Q&A Code Trajectory
 
             vector<double> ptsx;
             vector<double> ptsy;
