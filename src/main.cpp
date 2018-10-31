@@ -170,6 +170,12 @@ int lane = 1;
 // reference velocity for vehicle to target
 double ref_vel = 0.0; // mph
 
+// Changing Lane State
+bool changing_lane = false;
+double car_dt0 = 4 * lane + 2;
+
+
+
 int main() {
   uWS::Hub h;
 
@@ -260,7 +266,6 @@ int main() {
 
             bool too_close = false;
 
-            bool changing_lane = false;
 
             bool left_lane_clear = false;
             bool right_lane_clear = false;
@@ -268,7 +273,42 @@ int main() {
             int cars_in_left_lane = 0;
             int cars_in_right_lane = 0;
 
+            if (changing_lane) {
 
+              // Check if lane change is finished
+              // Based on car_d, lane centre, and difference
+
+
+              // Lane Change is finished when:
+              // Car is near centre of lane
+              // Car D is not changing significantly
+
+              // TODO:  IMprove this to use actual time derivative
+
+              double car_delta_d = abs(car_d - car_dt0);
+
+              double car_lane_center = abs(car_d - (4 * lane + 2) );
+
+
+              // cout << "Car Delta D: " << car_delta_d << endl; 
+
+              car_dt0 = car_d;
+
+              // Check Lane Centre
+
+              cout << "Car Lane Centre: " << car_lane_center  << endl;
+
+
+
+              if (car_delta_d < 0.001 && car_lane_center < 0.5) {
+
+                cout << "Lane Change Finished" << endl;
+                changing_lane = false;
+                car_dt0 = 4 * lane + 2;
+
+              }
+
+            }
 
 
 
@@ -336,16 +376,19 @@ int main() {
               // Slow Down
               ref_vel -= 0.224;
 
-              // Prepare For Lane Change
-              cout << "Cars in Left Zone: " << cars_in_left_lane << endl;
-              cout << "Cars in Right Zone: " << cars_in_right_lane << endl;
+              
 
               if (not changing_lane) {
+
+                // Prepare For Lane Change
+                cout << "Cars in Left Zone: " << cars_in_left_lane << endl;
+                cout << "Cars in Right Zone: " << cars_in_right_lane << endl;
 
                 if (cars_in_left_lane == 0 && lane > 0) {
 
                   // Change Lane Left
                   cout << "Changing Lane Left" << endl;
+                  changing_lane = true;
                   lane -= 1;
 
 
@@ -353,6 +396,7 @@ int main() {
 
                   // Change Lane Right
                   cout << "Changing Lane Right" << endl;
+                  changing_lane = true;
                   lane += 1;
 
 
