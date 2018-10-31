@@ -296,7 +296,7 @@ int main() {
 
                 }
 
-              } else if (( d > 0) && (d < 4)) {
+              } else if ((d > 0) && (d < 4)) {
 
                 // Check Car is in Left Lane
                 if (abs(check_car_s - car_s) < 20) {
@@ -305,17 +305,57 @@ int main() {
                   cars_in_left_lane += 1;
 
                 }
+              } else if ((d > 8) && (d < 12)) {
+
+                // Check Car is in Right Lane
+                if (abs(check_car_s - car_s) < 20) {
+
+                  // If Car is within zone, add to counter
+                  cars_in_right_lane += 1;
+                }
+
+
+
               }
 
             }
 
 
 
+            // TODO: CHange Math so detect vehciles in lane to left/right, 
+            //       not absolute lanes
+            // TODO: Change lane mechanics, move one at a time, e.g. lane ++/--
+            //       Instead of targeting individual lanes
+
+
             cout << "Cars in Left Zone: " << cars_in_left_lane << endl;
+            cout << "Cars in Right Zone: " << cars_in_right_lane << endl;
 
             if (too_close) {
 
               ref_vel -= 0.224;
+
+              if (cars_in_left_lane == 0 && lane > 0) {
+
+                // Change Lane Left
+                cout << "Changing Lane Left" << endl;
+                lane -= 1;
+
+
+              } else if (cars_in_right_lane == 0 && lane < 2) {
+
+                // Change Lane Right
+                cout << "Changing Lane Right" << endl;
+                lane += 1;
+
+
+              }
+
+
+
+
+
+
 
             } else if (ref_vel < 49.5) {
 
