@@ -296,7 +296,7 @@ int main() {
 
               // Check Lane Centre
 
-              cout << "Car Lane Centre: " << car_lane_center  << endl;
+              //cout << "Car Lane Centre: " << car_lane_center  << endl;
 
 
 
@@ -310,6 +310,10 @@ int main() {
 
             }
 
+
+            // TODO: Car is using projected Car_S from end of trajectory
+            // Therefore, when calculating collisoons, doesnt see things right beside it. 
+            // NEED TO EVALUATE FROM CURRENT CAR_S, not from where in future
 
 
             // Evaluate all vehicles in sensor data
@@ -381,8 +385,15 @@ int main() {
               if (not changing_lane) {
 
                 // Prepare For Lane Change
-                cout << "Cars in Left Zone: " << cars_in_left_lane << endl;
-                cout << "Cars in Right Zone: " << cars_in_right_lane << endl;
+                cout << "Preparing for Lane Change" << endl;
+
+                if (cars_in_left_lane > 0) {
+                  cout << "Cars in Left Zone: " << cars_in_left_lane << endl;
+                }
+                if (cars_in_right_lane > 0) {
+                  cout << "Cars in Right Zone: " << cars_in_right_lane << endl;
+                }
+
 
                 if (cars_in_left_lane == 0 && lane > 0) {
 
