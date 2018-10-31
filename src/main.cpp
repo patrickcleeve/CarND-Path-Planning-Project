@@ -260,6 +260,7 @@ int main() {
 
             bool too_close = false;
 
+            bool changing_lane = false;
 
             bool left_lane_clear = false;
             bool right_lane_clear = false;
@@ -296,18 +297,18 @@ int main() {
 
                 }
 
-              } else if ((d > 0) && (d < 4)) {
+              } else if ((d > 4 * lane) && (d < 4 * lane + 4) && lane > 0) {
 
-                // Check Car is in Left Lane
+                // Check Car is in Left Lane of Vehicle
                 if (abs(check_car_s - car_s) < 20) {
 
                   // If check car is within zone, add to counter
                   cars_in_left_lane += 1;
 
                 }
-              } else if ((d > 8) && (d < 12)) {
+              } else if ((d > 4 * lane + 4) && (d < 4 * lane + 8) && lane < 2) {
 
-                // Check Car is in Right Lane
+                // Check Car is in Right Lane of Vehicle
                 if (abs(check_car_s - car_s) < 20) {
 
                   // If Car is within zone, add to counter
@@ -326,29 +327,36 @@ int main() {
             //       not absolute lanes
             // TODO: Change lane mechanics, move one at a time, e.g. lane ++/--
             //       Instead of targeting individual lanes
+            // TODO: Prevent lane change once lane change has started
 
 
-            cout << "Cars in Left Zone: " << cars_in_left_lane << endl;
-            cout << "Cars in Right Zone: " << cars_in_right_lane << endl;
-
+            
             if (too_close) {
 
+              // Slow Down
               ref_vel -= 0.224;
 
-              if (cars_in_left_lane == 0 && lane > 0) {
+              // Prepare For Lane Change
+              cout << "Cars in Left Zone: " << cars_in_left_lane << endl;
+              cout << "Cars in Right Zone: " << cars_in_right_lane << endl;
 
-                // Change Lane Left
-                cout << "Changing Lane Left" << endl;
-                lane -= 1;
+              if (not changing_lane) {
+
+                if (cars_in_left_lane == 0 && lane > 0) {
+
+                  // Change Lane Left
+                  cout << "Changing Lane Left" << endl;
+                  lane -= 1;
 
 
-              } else if (cars_in_right_lane == 0 && lane < 2) {
+                } else if (cars_in_right_lane == 0 && lane < 2) {
 
-                // Change Lane Right
-                cout << "Changing Lane Right" << endl;
-                lane += 1;
+                  // Change Lane Right
+                  cout << "Changing Lane Right" << endl;
+                  lane += 1;
 
 
+                }
               }
 
 
