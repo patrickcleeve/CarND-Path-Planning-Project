@@ -260,38 +260,58 @@ int main() {
 
             bool too_close = false;
 
-            // Find ref_v to use
+
+            bool left_lane_clear = false;
+            bool right_lane_clear = false;
+
+            int cars_in_left_lane = 0;
+            int cars_in_right_lane = 0;
+
+
+
+
+
+            // Evaluate all vehicles in sensor data
             for (int i = 0; i < sensor_fusion.size(); i++) {
 
-              // car is in my lane
+              // Check Car Sensor Data
               float d = sensor_fusion[i][6];
+              double vx = sensor_fusion[i][3];
+              double vy = sensor_fusion[i][4];
+              double check_speed = sqrt(vx * vx + vy * vy);
+              double check_car_s = sensor_fusion[i][5];
+
+              // if using previous points car can project s value out
+              check_car_s += ((double)prev_size * 0.02 * check_speed);
+
+              // If CHeck Car in Current Lane
               if (d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2)) {
-
-                double vx = sensor_fusion[i][3];
-                double vy = sensor_fusion[i][4];
-                double check_speed = sqrt(vx * vx + vy * vy);
-                double check_car_s = sensor_fusion[i][5];
-
-                // if using previous points car can project s value out
-                check_car_s += ((double)prev_size * 0.02 * check_speed);
-
-                // cout << check_car_s << endl;
 
                 // check s values greater than mine and s gap
                 if ((check_car_s > car_s) && ((check_car_s - car_s) < 30)) {
 
-                  cout << "Car Ahead Detected in Lane" << endl;
-
-                  // Do some logic here, lower reference velocity so dont crash into
-                  // the car infornt of use
-                  // Also flag to try to change lanes.
-                  // ref_vel = 29.5; // mph
+                  // If Check Car infront within range
+                  // Flag car is too close
                   too_close = true;
 
+                }
+
+              } else if (( d > 0) && (d < 4)) {
+
+                // Check Car is in Left Lane
+                if (abs(check_car_s - car_s) < 20) {
+
+                  // If check car is within zone, add to counter
+                  cars_in_left_lane += 1;
 
                 }
               }
+
             }
+
+
+
+            cout << "Cars in Left Zone: " << cars_in_left_lane << endl;
 
             if (too_close) {
 
