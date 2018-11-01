@@ -256,9 +256,11 @@ int main() {
 
 
             // Project QA Code Sensor Fusion Behaviour
+            double current_car_s = car_s;
 
             if (prev_size > 0) {
 
+              
               car_s = end_path_s;
 
             }
@@ -272,6 +274,9 @@ int main() {
 
             int cars_in_left_lane = 0;
             int cars_in_right_lane = 0;
+
+            double target_vehicle_vel = 49.5;
+
 
             if (changing_lane) {
 
@@ -327,7 +332,10 @@ int main() {
               double check_car_s = sensor_fusion[i][5];
 
               // if using previous points car can project s value out
+              double check_car_current_s = check_car_s;
               check_car_s += ((double)prev_size * 0.02 * check_speed);
+
+              double check_car_diff = check_car_s - check_car_current_s;
 
               // If CHeck Car in Current Lane
               if (d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2)) {
@@ -339,12 +347,15 @@ int main() {
                   // Flag car is too close
                   too_close = true;
 
+                  // Set target speed to match vehicle ahead
+                  target_vehicle_vel = check_speed * 2.24;
+
                 }
 
               } else if ((d > 4 * lane) && (d < 4 * lane + 4) && lane > 0) {
 
                 // Check Car is in Left Lane of Vehicle
-                if (abs(check_car_s - car_s) < 20) {
+                if (abs(check_car_s - car_s) < 30 || abs(check_car_current_s - current_car_s) < 50) {
 
                   // If check car is within zone, add to counter
                   cars_in_left_lane += 1;
@@ -352,8 +363,9 @@ int main() {
                 }
               } else if ((d > 4 * lane + 4) && (d < 4 * lane + 8) && lane < 2) {
 
+                //cout << "CHeck Car Diff: " << check_car_diff << endl;
                 // Check Car is in Right Lane of Vehicle
-                if (abs(check_car_s - car_s) < 20) {
+                if (abs(check_car_s - car_s) < 30 || abs(check_car_current_s - current_car_s) < 50) {
 
                   // If Car is within zone, add to counter
                   cars_in_right_lane += 1;
@@ -374,11 +386,24 @@ int main() {
             // TODO: Prevent lane change once lane change has started
 
 
+            // If Not too close, target speed limit
+            /*if (not too_close) {
+
+              target_vehicle_vel = 49.5;
+
+            }*/
+
             
             if (too_close) {
 
-              // Slow Down
-              ref_vel -= 0.224;
+              cout << "Target Vehicle Speed: " << target_vehicle_vel << endl;
+
+              // Slow Down if above target speed
+              if (ref_vel > target_vehicle_vel) {
+
+                ref_vel -= 0.224;
+              
+              }
 
               
 
@@ -420,7 +445,7 @@ int main() {
 
 
 
-            } else if (ref_vel < 49.5) {
+            } else if (ref_vel < target_vehicle_vel) {
 
               ref_vel += 0.224;
 
