@@ -260,7 +260,6 @@ int main() {
 
             if (prev_size > 0) {
 
-              
               car_s = end_path_s;
 
             }
@@ -355,8 +354,10 @@ int main() {
               } else if ((d > 4 * lane) && (d < 4 * lane + 4) && lane > 0) {
 
                 // Check Car is in Left Lane of Vehicle
-                if (abs(check_car_s - car_s) < 30 || abs(check_car_current_s - current_car_s) < 50) {
+                if (abs(check_car_s - car_s) < 50) {
 
+
+                  //|| abs(check_car_current_s - current_car_s) < 50)
                   // If check car is within zone, add to counter
                   cars_in_left_lane += 1;
 
@@ -365,7 +366,10 @@ int main() {
 
                 //cout << "CHeck Car Diff: " << check_car_diff << endl;
                 // Check Car is in Right Lane of Vehicle
-                if (abs(check_car_s - car_s) < 30 || abs(check_car_current_s - current_car_s) < 50) {
+                if (abs(check_car_s - car_s) < 50)  {
+
+
+                  //|| abs(check_car_current_s - current_car_s) < 50)
 
                   // If Car is within zone, add to counter
                   cars_in_right_lane += 1;
@@ -385,13 +389,19 @@ int main() {
             //       Instead of targeting individual lanes
             // TODO: Prevent lane change once lane change has started
 
+            // TODO: Fix Blind Spot on lane change
 
-            // If Not too close, target speed limit
-            /*if (not too_close) {
 
-              target_vehicle_vel = 49.5;
 
-            }*/
+            if (cars_in_left_lane == 0) {
+              left_lane_clear = true;
+            }
+            if (cars_in_right_lane == 0) {
+              right_lane_clear = true;
+            }
+
+
+
 
             
             if (too_close) {
@@ -412,15 +422,15 @@ int main() {
                 // Prepare For Lane Change
                 cout << "Preparing for Lane Change" << endl;
 
-                if (cars_in_left_lane > 0) {
+                if (not left_lane_clear) {
                   cout << "Cars in Left Zone: " << cars_in_left_lane << endl;
                 }
-                if (cars_in_right_lane > 0) {
+                if (not right_lane_clear) {
                   cout << "Cars in Right Zone: " << cars_in_right_lane << endl;
                 }
 
 
-                if (cars_in_left_lane == 0 && lane > 0) {
+                if (left_lane_clear && lane > 0) {
 
                   // Change Lane Left
                   cout << "Changing Lane Left" << endl;
@@ -428,7 +438,7 @@ int main() {
                   lane -= 1;
 
 
-                } else if (cars_in_right_lane == 0 && lane < 2) {
+                } else if (right_lane_clear && lane < 2) {
 
                   // Change Lane Right
                   cout << "Changing Lane Right" << endl;
@@ -602,32 +612,6 @@ int main() {
 
 
             }
-
-
-
-
-            /* 
-
-            // Initial starter code
-            // Instant acceleration, stays in middle lane.
-
-
-            double dist_inc = 0.4;
-            for(int i = 0; i < 50; i++)
-            {   
-
-              double next_s = car_s + (i+1) * dist_inc;
-              double next_d = 6;
-
-              vector<double> xy = getXY(next_s, next_d, map_waypoints_s, map_waypoints_x, map_waypoints_y);  
-
-              next_x_vals.push_back(xy[0]);
-              next_y_vals.push_back(xy[1]);
-            } */
-
-
-
-
 
 
             json msgJson;
