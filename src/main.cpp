@@ -175,6 +175,29 @@ bool changing_lane = false;
 double car_dt0 = 4 * lane + 2;
 
 
+// Behaviour Parameters
+// lane_change_clearance = 50;
+// lane_change_delta_d = 0.005;
+// lane_change_center_diff = 0.5;
+
+
+
+// State Parameters
+
+
+// Func for determining lane min/max
+// e.g. 1 -> 4,8
+// 4 * lane + 0 / 4;
+
+// Func for determining lane center:
+// 4 * lane + 2
+
+
+
+
+
+
+
 
 int main() {
   uWS::Hub h;
@@ -256,7 +279,7 @@ int main() {
 
 
             // Project QA Code Sensor Fusion Behaviour
-            double current_car_s = car_s;
+            //double current_car_s = car_s;
 
             if (prev_size > 0) {
 
@@ -264,9 +287,8 @@ int main() {
 
             }
 
-
+            // State Variables
             bool too_close = false;
-
 
             bool left_lane_clear = false;
             bool right_lane_clear = false;
@@ -274,37 +296,27 @@ int main() {
             int cars_in_left_lane = 0;
             int cars_in_right_lane = 0;
 
-            double target_vehicle_vel = 49.5;
+            double target_vehicle_vel = 49.5; // mph
 
 
             if (changing_lane) {
 
               // Check if lane change is finished
-              // Based on car_d, lane centre, and difference
-
 
               // Lane Change is finished when:
-              // Car is near centre of lane
-              // Car D is not changing significantly
-
-              // TODO:  IMprove this to use actual time derivative
+              //  Car is near centre of lane
+              //  Car D is not changing significantly
 
               double car_delta_d = abs(car_d - car_dt0);
 
               double car_lane_center = abs(car_d - (4 * lane + 2) );
 
-
-              // cout << "Car Delta D: " << car_delta_d << endl; 
-
               car_dt0 = car_d;
-
-              // Check Lane Centre
-
-              //cout << "Car Lane Centre: " << car_lane_center  << endl;
-
 
 
               if (car_delta_d < 0.001 && car_lane_center < 0.5) {
+
+                // Confirm lane change finished
 
                 cout << "Lane Change Finished" << endl;
                 changing_lane = false;
@@ -313,12 +325,6 @@ int main() {
               }
 
             }
-
-
-            // TODO: Car is using projected Car_S from end of trajectory
-            // Therefore, when calculating collisoons, doesnt see things right beside it. 
-            // NEED TO EVALUATE FROM CURRENT CAR_S, not from where in future
-
 
             // Evaluate all vehicles in sensor data
             for (int i = 0; i < sensor_fusion.size(); i++) {
@@ -331,10 +337,10 @@ int main() {
               double check_car_s = sensor_fusion[i][5];
 
               // if using previous points car can project s value out
-              double check_car_current_s = check_car_s;
+              //double check_car_current_s = check_car_s;
               check_car_s += ((double)prev_size * 0.02 * check_speed);
 
-              double check_car_diff = check_car_s - check_car_current_s;
+              //double check_car_diff = check_car_s - check_car_current_s;
 
               // If CHeck Car in Current Lane
               if (d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2)) {
@@ -381,17 +387,7 @@ int main() {
 
             }
 
-
-
-            // TODO: CHange Math so detect vehciles in lane to left/right, 
-            //       not absolute lanes
-            // TODO: Change lane mechanics, move one at a time, e.g. lane ++/--
-            //       Instead of targeting individual lanes
-            // TODO: Prevent lane change once lane change has started
-
-            // TODO: Fix Blind Spot on lane change
-
-
+            // Confirm Lane Change is Clear
 
             if (cars_in_left_lane == 0) {
               left_lane_clear = true;
@@ -401,8 +397,8 @@ int main() {
             }
 
 
-
-
+            // Keep Lane 
+            // If a vehicle in our lane, slow down and try to change lane
             
             if (too_close) {
 
@@ -415,7 +411,7 @@ int main() {
               
               }
 
-              
+              // Prepare For Lane Change
 
               if (not changing_lane) {
 
@@ -450,10 +446,8 @@ int main() {
               }
 
 
-
-
-
-
+            // Keep Lane
+            // If clear, accelerate up to target velocity
 
             } else if (ref_vel < target_vehicle_vel) {
 
@@ -462,25 +456,6 @@ int main() {
             }
 
             
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
             // Project Q&A Code Trajectory
