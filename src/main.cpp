@@ -174,7 +174,7 @@ double ref_vel = 0.0; // mph
 bool changing_lane = false;
 double car_dt0 = 4 * lane + 2;
 
-
+//TODO:
 // Behaviour Parameters
 // lane_change_clearance = 50;
 // lane_change_delta_d = 0.005;
@@ -192,7 +192,9 @@ double car_dt0 = 4 * lane + 2;
 // Func for determining lane center:
 // 4 * lane + 2
 
-
+// Logging Parameters
+bool debug_mode = false;
+bool behaviour_mode = false;
 
 
 
@@ -279,7 +281,7 @@ int main() {
 
 
             // Project QA Code Sensor Fusion Behaviour
-            //double current_car_s = car_s;
+            double current_car_s = car_s;
 
             if (prev_size > 0) {
 
@@ -337,10 +339,22 @@ int main() {
               double check_car_s = sensor_fusion[i][5];
 
               // if using previous points car can project s value out
-              //double check_car_current_s = check_car_s;
+              double check_car_current_s = check_car_s;
               check_car_s += ((double)prev_size * 0.02 * check_speed);
 
-              //double check_car_diff = check_car_s - check_car_current_s;
+              double check_car_diff = abs(check_car_s - check_car_current_s);
+
+              double current_car_s_diff = abs(check_car_current_s - current_car_s);
+
+              if (current_car_s_diff < 20 && (d <= 2 || d >= 0)) {
+                cout << "Lane: " << d << " : " << current_car_s_diff  << endl;
+
+              } 
+
+
+
+
+
 
               // If CHeck Car in Current Lane
               if (d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2)) {
@@ -360,7 +374,7 @@ int main() {
               } else if ((d > 4 * lane) && (d < 4 * lane + 4) && lane > 0) {
 
                 // Check Car is in Left Lane of Vehicle
-                if (abs(check_car_s - car_s) < 50) {
+                if (abs(check_car_s - car_s) < 50 || current_car_s_diff < 20) {
 
 
                   //|| abs(check_car_current_s - current_car_s) < 50)
@@ -372,7 +386,7 @@ int main() {
 
                 //cout << "CHeck Car Diff: " << check_car_diff << endl;
                 // Check Car is in Right Lane of Vehicle
-                if (abs(check_car_s - car_s) < 50)  {
+                if (abs(check_car_s - car_s) < 50 || current_car_s_diff < 20) {
 
 
                   //|| abs(check_car_current_s - current_car_s) < 50)
@@ -402,7 +416,7 @@ int main() {
             
             if (too_close) {
 
-              cout << "Target Vehicle Speed: " << target_vehicle_vel << endl;
+              //cout << "Target Vehicle Speed: " << target_vehicle_vel << endl;
 
               // Slow Down if above target speed
               if (ref_vel > target_vehicle_vel) {
