@@ -176,7 +176,8 @@ double car_dt0 = 4 * lane + 2;
 
 //TODO:
 // Behaviour Parameters
-// lane_change_clearance = 50;
+// lane_change_clearance = 40;
+// lane_change_close_clearance = 30;
 // lane_change_delta_d = 0.005;
 // lane_change_center_diff = 0.5;
 
@@ -340,16 +341,19 @@ int main() {
 
               // if using previous points car can project s value out
               double check_car_current_s = check_car_s;
+              
               check_car_s += ((double)prev_size * 0.02 * check_speed);
 
               double check_car_diff = abs(check_car_s - check_car_current_s);
 
               double current_car_s_diff = abs(check_car_current_s - current_car_s);
 
-              if (current_car_s_diff < 20 && (d <= 2 || d >= 0)) {
-                cout << "Lane: " << d << " : " << current_car_s_diff  << endl;
+              if (debug_mode) {
+                if (current_car_s_diff < 30 && (d >= 0)) {
+                  cout << "Lane: " <<  d / 4 << " : " << current_car_s_diff  << endl;
 
-              } 
+                } 
+              }
 
 
 
@@ -374,22 +378,16 @@ int main() {
               } else if ((d > 4 * lane) && (d < 4 * lane + 4) && lane > 0) {
 
                 // Check Car is in Left Lane of Vehicle
-                if (abs(check_car_s - car_s) < 50 || current_car_s_diff < 20) {
+                if (abs(check_car_s - car_s) < 40 || current_car_s_diff < 30) {
 
-
-                  //|| abs(check_car_current_s - current_car_s) < 50)
                   // If check car is within zone, add to counter
                   cars_in_left_lane += 1;
 
                 }
               } else if ((d > 4 * lane + 4) && (d < 4 * lane + 8) && lane < 2) {
 
-                //cout << "CHeck Car Diff: " << check_car_diff << endl;
                 // Check Car is in Right Lane of Vehicle
-                if (abs(check_car_s - car_s) < 50 || current_car_s_diff < 20) {
-
-
-                  //|| abs(check_car_current_s - current_car_s) < 50)
+                if (abs(check_car_s - car_s) < 40 || current_car_s_diff < 30) {
 
                   // If Car is within zone, add to counter
                   cars_in_right_lane += 1;
