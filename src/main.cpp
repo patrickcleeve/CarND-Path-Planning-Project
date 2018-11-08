@@ -164,6 +164,7 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s, const vec
 
 }
 
+// Parameters
 // starting lane
 int lane = 1;
 
@@ -174,17 +175,17 @@ double ref_vel = 0.0; // mph
 bool changing_lane = false;
 double car_dt0 = 4 * lane + 2;
 
-//TODO:
 // Behaviour Parameters
-// lane_change_clearance = 40;
-// lane_change_close_clearance = 30;
-// lane_change_delta_d = 0.005;
-// lane_change_center_diff = 0.5;
+double lane_collision_clearance = 30;
+double lane_change_clearance = 40;
+double lane_change_close_clearance = 30;
+double lane_change_delta_d = 0.001;
+double lane_change_center_diff = 0.5;
 
 
 
+// TODO:
 // State Parameters
-
 
 // Func for determining lane min/max
 // e.g. 1 -> 4,8
@@ -195,7 +196,7 @@ double car_dt0 = 4 * lane + 2;
 
 // Logging Parameters
 bool debug_mode = false;
-bool behaviour_mode = false;
+bool behaviour_mode = true;
 
 
 
@@ -281,7 +282,9 @@ int main() {
 
 
 
-            // Project QA Code Sensor Fusion Behaviour
+            // Sensor Fusion Behaviour
+            // Reference: Project Q&A Video
+
             double current_car_s = car_s;
 
             if (prev_size > 0) {
@@ -317,7 +320,7 @@ int main() {
               car_dt0 = car_d;
 
 
-              if (car_delta_d < 0.001 && car_lane_center < 0.5) {
+              if (car_delta_d < lane_change_delta_d && car_lane_center < lane_change_center_diff) {
 
                 // Confirm lane change finished
 
@@ -360,11 +363,11 @@ int main() {
 
 
 
-              // If CHeck Car in Current Lane
+              // If Check Car in Current Lane
               if (d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2)) {
 
                 // check s values greater than mine and s gap
-                if ((check_car_s > car_s) && ((check_car_s - car_s) < 30)) {
+                if ((check_car_s > car_s) && ((check_car_s - car_s) < lane_collision_clearance)) {
 
                   // If Check Car infront within range
                   // Flag car is too close
@@ -378,7 +381,7 @@ int main() {
               } else if ((d > 4 * lane) && (d < 4 * lane + 4) && lane > 0) {
 
                 // Check Car is in Left Lane of Vehicle
-                if (abs(check_car_s - car_s) < 40 || current_car_s_diff < 30) {
+                if (abs(check_car_s - car_s) < lane_change_clearance || current_car_s_diff < lane_change_close_clearance) {
 
                   // If check car is within zone, add to counter
                   cars_in_left_lane += 1;
@@ -387,7 +390,7 @@ int main() {
               } else if ((d > 4 * lane + 4) && (d < 4 * lane + 8) && lane < 2) {
 
                 // Check Car is in Right Lane of Vehicle
-                if (abs(check_car_s - car_s) < 40 || current_car_s_diff < 30) {
+                if (abs(check_car_s - car_s) < lane_change_clearance || current_car_s_diff < lane_change_close_clearance) {
 
                   // If Car is within zone, add to counter
                   cars_in_right_lane += 1;
@@ -430,12 +433,15 @@ int main() {
                 // Prepare For Lane Change
                 cout << "Preparing for Lane Change" << endl;
 
-                if (not left_lane_clear) {
-                  cout << "Cars in Left Zone: " << cars_in_left_lane << endl;
+                if (behaviour_mode) {
+                  if (not left_lane_clear) {
+                    cout << "Cars in Left Zone: " << cars_in_left_lane << endl;
+                  }
+                  if (not right_lane_clear) {
+                    cout << "Cars in Right Zone: " << cars_in_right_lane << endl;
+                  }
                 }
-                if (not right_lane_clear) {
-                  cout << "Cars in Right Zone: " << cars_in_right_lane << endl;
-                }
+                
 
 
                 if (left_lane_clear && lane > 0) {
